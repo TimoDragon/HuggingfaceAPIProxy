@@ -1,0 +1,14 @@
+[
+  {
+    "id" : "meta-llama/Meta-Llama-3-8B-Instruct",
+    "object": "model",
+    "created": 0,
+    "context_length": 8192
+  },
+  {
+    "id" : "meta-llama/Meta-Llama-3-70B-Instruct",
+    "object": "model",
+    "created": 1,
+    "context_length": 8192
+  }
+]
