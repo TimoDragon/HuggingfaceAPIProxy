@@ -10,5 +10,23 @@
     "object": "model",
     "created": 1,
     "context_length": 8192
+  },
+  {
+    "id" : "CohereForAI/c4ai-command-r-plus",
+    "object": "model",
+    "created": 2,
+    "context_length": 131072
+  },
+  {
+    "id" : "microsoft/Phi-3-mini-128k-instruct",
+    "object": "model",
+    "created": 3,
+    "context_length": 131072
+  },
+  {
+    "id" : "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1",
+    "object": "model",
+    "created": 4,
+    "context_length": 65536
   }
 ]
