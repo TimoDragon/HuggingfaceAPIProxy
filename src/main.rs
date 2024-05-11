@@ -77,7 +77,7 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
         .header("Authorization", token)
         .header("Content-Type", "application/json")
         .header("x-use-cache", 0)
-        .body(body_str.clone())
+        .body(body_str)
         .send()
         .await;
 
@@ -94,6 +94,10 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
                 let stream_reader = stream.map_ok(move |chunk| {
                     let json_str = String::from_utf8_lossy(&chunk);
 
+                    if json_str.trim() == ":" {
+                        return Bytes::from("");
+                    }
+
                     let json_str = json_str.trim_start_matches("data:").trim_end_matches("\n\n");
 
                     let mut json: Value = match serde_json::from_str(json_str) {
@@ -108,14 +112,6 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
                         if let Some(err) = obj.get_mut("error") {
                             println!("Error: {}", json_str);
                             return Bytes::from(json_str.as_bytes().to_vec());
-                        }
-
-                        if let Some(id) = obj.get_mut("id") {
-                            *id = json!(uuid.to_string());
-                        }
-
-                        if let Some(o) = obj.get_mut("object") {
-                            *o = json!("chat.completion.chunk");
                         }
                     }
 
