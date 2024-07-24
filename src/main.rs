@@ -27,7 +27,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/v1/models").to(return_models))
             .service(web::resource("/v1/chat/completions").route(web::post().to(handle_chat_request)))
     })
-        .bind("127.0.0.1:8080")?
+        .bind("0.0.0.0:11435")?
         .run()
         .await
 }
