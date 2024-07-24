@@ -62,13 +62,16 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
 
     let mut stream: bool = false;
     let mut body_json: Value = serde_json::from_str(&body_str).unwrap();
-    if let Some(obj) = body_json.as_object_mut() {
+
+    println!("{}", body_str);
+
+    /*if let Some(obj) = body_json.as_object_mut() {
         obj.remove("logit_bias");
 
         if let Some(s) = obj.get_mut("stream") {
             stream = s.as_bool().unwrap();
         }
-    }
+    }*/
 
     let body_str = serde_json::to_string(&body_json).unwrap();
 
@@ -91,15 +94,18 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
 
                 let uuid = Uuid::new_v4();
 
+                // iterate through the stream
                 let stream_reader = stream.map_ok(move |chunk| {
                     let json_str = String::from_utf8_lossy(&chunk);
 
+                    // trim the string so that it can be used
                     if json_str.trim() == ":" {
                         return Bytes::from("");
                     }
 
                     let json_str = json_str.trim_start_matches("data:").trim_end_matches("\n\n");
 
+                    // convert the json string to json format
                     let mut json: Value = match serde_json::from_str(json_str) {
                         Ok(json) => json,
                         Err(err) => {
@@ -107,7 +113,10 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
                             return Bytes::from(err.to_string().as_bytes().to_vec());
                         }
                     };
+                    
+                    println!("{}", json_str);
 
+                    // check if the json contains an error
                     if let Some(obj) = json.as_object_mut() {
                         if let Some(err) = obj.get_mut("error") {
                             println!("Error: {}", json_str);
@@ -115,6 +124,7 @@ async fn handle_chat_request(req: HttpRequest, body: web::Bytes) -> impl Respond
                         }
                     }
 
+                    // make a string out of the json and stream it to the user
                     let mut json_str = serde_json::to_string(&json).unwrap();
                     json_str.insert_str(0, "data:");
                     json_str.push_str("\n\n");
